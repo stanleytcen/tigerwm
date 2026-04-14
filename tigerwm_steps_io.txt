@@ -1,0 +1,45 @@
+﻿【tigerwm 每一步輸入/輸出整理】
+
+全域必備輸入（所有流程都要有）
+1) dwi_path：原始 4D DWI NIfTI
+2) bval_path、bvec_path：梯度資訊
+3) out_dir：輸出資料夾
+
+各 step 的輸入/輸出
+
+M（MPPCA 去雜訊）
+- 輸入：目前的 DWI（4D NIfTI）
+- 輸出：去雜訊 DWI（dwi_mppca*.nii.gz）
+
+N（NLM 去雜訊）
+- 輸入：目前 DWI + bvals/bvecs（需要 b0 參考）
+- 輸出：去雜訊 DWI（dwi_nlm*.nii.gz）
+
+G（Gibbs 去除）
+- 輸入：目前 DWI
+- 輸出：Gibbs 去除後 DWI（dwi_*_gibbs*.nii.gz）
+
+D（GDM 幾何校正）
+- 輸入：目前 DWI
+- 輸出：校正後 DWI（存於 out_dir/gdm/）
+
+S（Skull strip）
+- 輸入：目前 DWI + bvals/bvecs
+- 內部流程：先生成 b0 3D，再用 tigerbx 做 skull-strip
+- 輸出：mask_tigerbx.nii.gz
+
+T（Tensor fit）
+- 輸入：目前 DWI + bvals/bvecs + mask_tigerbx
+- 輸出：FA/MD/RD/AD NIfTI + QC
+
+R（ROI 計算）
+- 輸入：FA/MD/RD/AD + mask + JHU templates
+- 輸出：ROI/tract 指標（寫入 CSV）
+
+重點一句話
+- M/N/G/D 都是改 DWI
+- S 產生 mask
+- T 產生 FA/MD/RD/AD
+- R 用 FA/MD/RD/AD + mask 產生 ROI
+
+【END】

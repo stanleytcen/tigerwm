@@ -1,0 +1,15 @@
+.venv/
+.venv*/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+*.nii
+*.nii.gz
+outputs/
+_reports/
+*.csv
+*.log
+*.out
+build/
+dist/
+*.egg-info/
