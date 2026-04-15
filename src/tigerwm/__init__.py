@@ -1,3 +1,3 @@
-﻿from .pipeline import DEFAULT_PIPELINE, DEFAULT_STEPS, PIPELINE_STEPS, tigerwm
+from .pipeline import DEFAULT_PIPELINE, DEFAULT_STEPS, PIPELINE_STEPS, tigerwm
 
 __all__ = ["tigerwm", "PIPELINE_STEPS", "DEFAULT_PIPELINE", "DEFAULT_STEPS"]

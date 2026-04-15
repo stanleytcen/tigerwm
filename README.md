@@ -1,4 +1,4 @@
-﻿# tigerwm
+# tigerwm
 
 DTI pipeline utilities extracted from the WM notebooks.
 
