@@ -1,4 +1,4 @@
-[build-system]
+﻿[build-system]
 requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -13,5 +13,6 @@ dependencies = [
   "nibabel",
   "dipy",
   "pandas",
-  "tigerbx",
+  "tigerbx @ https://github.com/htylab/tigerbx/archive/release.zip",
 ]
+

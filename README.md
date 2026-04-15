@@ -8,6 +8,8 @@ DTI pipeline utilities extracted from the WM notebooks.
 pip install -e .
 ```
 
+Note: tigerbx is installed from the htylab/tigerbx GitHub release archive because it is not distributed on PyPI. For reproducible analyses, record the installed tigerbx version used for each run.
+
 ## Default pipeline
 
 tigerwm uses **P4** by default when no step code is provided.
@@ -83,3 +85,4 @@ tigerwm("MGDSTR", dwi_path, bval_path, bvec_path, out_dir)
 - `R` = ROI (JHU atlas to native)
 
 The steps run in the order provided.
+
