@@ -13,6 +13,7 @@ dependencies = [
   "nibabel",
   "dipy",
   "pandas",
+  "onnxruntime",
   "tigerbx @ https://github.com/htylab/tigerbx/archive/release.zip",
 ]
 
