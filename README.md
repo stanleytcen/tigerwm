@@ -1,69 +1,129 @@
 # tigerwm
 
-DTI pipeline utilities extracted from the WM notebooks.
+tigerwm is a Python package for running DTI preprocessing and ROI extraction pipelines extracted from the WM notebooks.
 
-## Install
+The default pipeline is P4:
+
+```text
+P4 = NGDSTR = NLM + Gibbs removal + GDM + skull strip + tensor fit + ROI
+```
+
+P4 is the default because it showed the best overall age/sex prediction performance and the lowest tensor-residual RMSE in the IXI experiments from this project. This is a project-based default, not a universal rule for every dataset.
+
+## Install From GitHub
 
 ```bash
-pip install -e .
+git clone https://github.com/stanleytcen/tigerwm.git
+cd tigerwm
+
+python -m venv .venv
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+python -m pip install -e .
+```
+
+Check the install:
+
+```bash
+python -c "from tigerwm import tigerwm, DEFAULT_PIPELINE, DEFAULT_STEPS; print(DEFAULT_PIPELINE, DEFAULT_STEPS)"
+```
+
+Expected output:
+
+```text
+P4 NGDSTR
 ```
 
 Note: tigerbx is installed from the htylab/tigerbx GitHub release archive because it is not distributed on PyPI. For reproducible analyses, record the installed tigerbx version used for each run.
 
-## Default pipeline
+## Required Inputs
 
-tigerwm uses **P4** by default when no step code is provided.
+- 4D DWI NIfTI file (`.nii` or `.nii.gz`)
+- matching bvals file
+- matching bvecs file
+- output directory
+- JHU templates directory when running ROI extraction (`R` step)
 
-P4 = `N G D S T R`
+The JHU templates directory should contain:
 
-- `N`: NLM denoising
-- `G`: Gibbs ringing removal
-- `D`: GDM EPI distortion correction
-- `S`: skull strip with tigerbx
-- `T`: tensor fit
-- `R`: ROI extraction with JHU atlas
+- `JHU-ICBM-FA-1mm.nii.gz`
+- `JHU-ICBM-labels-1mm.nii.gz`
+- `JHU-ICBM-tracts-maxprob-thr25-1mm.nii.gz`
 
-P4 is the default because it had the best overall age/sex prediction performance and the lowest tensor-residual RMSE in the IXI experiments from this project. This default is a project-based recommendation, not a universal rule for every dataset.
-
-## Basic usage
+## Basic Usage
 
 ```python
 from tigerwm import tigerwm
 
 # Default P4: NLM + Gibbs + GDM + skull strip + tensor fit + ROI
-tigerwm(
-    r"N:\path\to\dti_raw.nii.gz",
-    r"N:\path\to\bvals.txt",
-    r"N:\path\to\bvecs.txt",
-    r"N:\path\to\out\IXI002",
-    templates_dir=r"N:\N\WM\IXI\_shared\templates",
-    subject="IXI002",
-    csv_path=r"N:\N\WM\IXI\P4_nlm_gibbs_gdm_tigerbx_tensor_jhu\_reports\P4.csv",
+res = tigerwm(
+    "/path/to/dwi_raw.nii.gz",
+    "/path/to/bvals.txt",
+    "/path/to/bvecs.txt",
+    "/path/to/output_dir",
+    templates_dir="/path/to/templates",
+    subject="sub-001",
+    csv_path="/path/to/results.csv",
+)
+
+print(res["pipeline"], res["steps"])
+print(res["dwi"])
+```
+
+## Run a Named Pipeline
+
+```python
+from tigerwm import tigerwm
+
+# Run P3 by name: MPPCA + Gibbs + GDM + skull strip + tensor fit + ROI
+res = tigerwm(
+    "P3",
+    "/path/to/dwi_raw.nii.gz",
+    "/path/to/bvals.txt",
+    "/path/to/bvecs.txt",
+    "/path/to/output_dir_p3",
+    templates_dir="/path/to/templates",
+    subject="sub-001",
+    csv_path="/path/to/results_p3.csv",
 )
 ```
 
-## Custom pipeline
-
-You can still provide a named pipeline or explicit step code.
+You can also pass explicit step codes:
 
 ```python
-# Run P3 by name
-tigerwm(
-    "P3",
-    r"N:\path\to\dti_raw.nii.gz",
-    r"N:\path\to\bvals.txt",
-    r"N:\path\to\bvecs.txt",
-    r"N:\path\to\out\IXI002",
-    templates_dir=r"N:\N\WM\IXI\_shared\templates",
-    subject="IXI002",
-    csv_path=r"N:\N\WM\IXI\P3_mppca_gibbs_gdm_tigerbx_tensor_jhu\_reports\P3.csv",
-)
-
-# Run the same P3 steps explicitly
 tigerwm("MGDSTR", dwi_path, bval_path, bvec_path, out_dir)
 ```
 
-## Named pipelines
+## Example Scripts
+
+Default P4:
+
+```bash
+python examples/run_default_p4.py \
+  --dwi /path/to/dwi_raw.nii.gz \
+  --bvals /path/to/bvals.txt \
+  --bvecs /path/to/bvecs.txt \
+  --out-dir /path/to/output_p4 \
+  --templates-dir /path/to/templates \
+  --subject sub-001 \
+  --csv-path /path/to/p4_results.csv
+```
+
+Specified P3:
+
+```bash
+python examples/run_p3.py \
+  --dwi /path/to/dwi_raw.nii.gz \
+  --bvals /path/to/bvals.txt \
+  --bvecs /path/to/bvecs.txt \
+  --out-dir /path/to/output_p3 \
+  --templates-dir /path/to/templates \
+  --subject sub-001 \
+  --csv-path /path/to/p3_results.csv
+```
+
+## Named Pipelines
 
 - `P0` = `STR`
 - `P1` = `MGSTR`
@@ -74,15 +134,16 @@ tigerwm("MGDSTR", dwi_path, bval_path, bvec_path, out_dir)
 - `P6` = `DMGSTR`
 - `P7` = `DNGSTR`
 
-## Step codes
+## Step Codes
 
-- `M` = MPPCA
-- `N` = NLM
-- `G` = Gibbs
-- `D` = GDM
-- `S` = skull strip (tigerbx)
+- `M` = MPPCA denoising
+- `N` = NLM denoising
+- `G` = Gibbs ringing removal
+- `D` = GDM EPI distortion correction
+- `S` = skull strip with tigerbx
 - `T` = tensor fit
-- `R` = ROI (JHU atlas to native)
+- `R` = ROI extraction with JHU atlas warped to native space
 
 The steps run in the order provided.
 
+See `docs/pipeline_steps.md` for more detail.
